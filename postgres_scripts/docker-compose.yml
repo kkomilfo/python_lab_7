@@ -1,0 +1,41 @@
+version: '3'
+
+networks:
+  dem:
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: QazWsx@Edc1234
+      POSTGRES_DB: clinic_db
+    ports:
+      - "5432:5432"
+    networks:
+      - dem
+    volumes:
+      - ./init_db.sql:/docker-entrypoint-init_db.d/init_db.sql
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5000:80"
+    depends_on:
+      - postgres
+    networks:
+      - dem
+  app:
+    restart: no
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/postgres_scripts
+    depends_on:
+      - postgres
+    networks:
+      - dem
